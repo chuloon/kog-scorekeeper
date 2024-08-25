@@ -2,6 +2,7 @@ import { Tabs } from '@mantine/core';
 import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useState } from 'react';
+import classes from './TabSelector.module.css';
 
 export function TabSelector() {
     const [pairs, setPairs] = useState([] as Pair[]);
@@ -25,15 +26,15 @@ export function TabSelector() {
                     </Tabs.Tab>
                 </Tabs.List>
 
-                <Tabs.Panel value="gallery">
+                <Tabs.Panel className={classes.tabContent} value="gallery">
                     <PairsContent addNewPair={addNewPair} pairs={pairs} />
                 </Tabs.Panel>
 
-                <Tabs.Panel value="messages">
+                <Tabs.Panel className={classes.tabContent} value="messages">
                     Match-Ups content
                 </Tabs.Panel>
 
-                <Tabs.Panel value="settings">
+                <Tabs.Panel className={classes.tabContent} value="settings">
                     Standings content
                 </Tabs.Panel>
             </Tabs>

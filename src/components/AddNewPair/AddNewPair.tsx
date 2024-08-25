@@ -16,7 +16,6 @@ export function AddNewPair({ handleAddNewPair }: AddNewPairProps) {
 
     return (
         <>
-
             <form onSubmit={form.onSubmit((values) => addPairClick(values))}>
                 <Group gap={'xs'}>
                     <TextInput
