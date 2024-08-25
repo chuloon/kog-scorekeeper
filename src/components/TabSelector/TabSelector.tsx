@@ -5,13 +5,18 @@ import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
 import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from '@firebase/firestore';
 import { db } from '@/firebase';
+import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
+import { MatchUp } from '@/classes/MatchUp';
 
 export function TabSelector() {
     const [pairs, setPairs] = useState([] as Pair[]);
+    const [matchUps, setMatchUps] = useState([] as MatchUp[]);
 
     useEffect(() => {
         getPairsFromDatabase().then(data => setPairs(data))
     }, [])
+
+    //#region PAIR HELPERS
     const addNewPair = async (newPair: Pair) => {
         await addDoc(collection(db, "pairs"), {
             ...newPair.getPairData()
@@ -42,12 +47,14 @@ export function TabSelector() {
                         pair.pairNumber,
                         pair.cumulativePointDiff,
                         pair.cumulativeWins,
-                        pair.hasPaid
+                        pair.hasPaid,
+                        pair.standing
                     )
                 )
                 return serializedPairData;
             });
     }
+    //#endregion
 
     return (
         <>
@@ -69,7 +76,7 @@ export function TabSelector() {
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="messages">
-                    Match-Ups content
+                    <MatchUpsContent matchUps={matchUps} />
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="settings">

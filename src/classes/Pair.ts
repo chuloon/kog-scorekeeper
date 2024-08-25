@@ -5,6 +5,7 @@ export class Pair {
     private _cumulativePointDiff: number = 0;
     private _cumulativeWins: number = 0;
     private _hasPaid: boolean = false;
+    private _standing: number = -1;
 
     public constructor(
         player1Name: string,
@@ -12,13 +13,16 @@ export class Pair {
         pairNumber: number,
         cumulativePointDiff?: number,
         cumulativeWins?: number,
-        hasPaid?: boolean) {
+        hasPaid?: boolean,
+        standing?: number
+    ) {
         this._player1Name = player1Name;
         this._player2Name = player2Name;
         this._pairNumber = pairNumber;
         if (cumulativePointDiff) this._cumulativePointDiff = cumulativePointDiff;
         if (cumulativeWins) this._cumulativeWins = cumulativeWins;
         if (hasPaid !== undefined) this._hasPaid = hasPaid;
+        if (standing) this._standing = standing;
     }
 
     //#region FIREBASE_TOOLS
@@ -29,7 +33,8 @@ export class Pair {
             pairNumber: this._pairNumber,
             cumulativePointDiff: this._cumulativePointDiff,
             cumulativeWins: this._cumulativeWins,
-            hasPaid: this._hasPaid
+            hasPaid: this._hasPaid,
+            standing: this._standing
         }
 
         return pairData;
@@ -83,6 +88,16 @@ export class Pair {
 
     public getWins(): number {
         return this._cumulativeWins;
+    }
+    //#endregion
+
+    //#region STANDING
+    public setStanding(standing: number): void {
+        this._standing = standing;
+    }
+
+    public getStanding(): number {
+        return this._standing;
     }
     //#endregion
 }
