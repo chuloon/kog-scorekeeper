@@ -8,6 +8,7 @@ export function PairsTable({ pairs, deletePair }: PairsTableProps) {
     }
 
     const rows = pairs.map((pair: Pair) => {
+        console.log(pairs);
         return <Table.Tr key={`${pair.getPairKey()}`}>
             <Table.Td>{pair.getPairNumber()}</Table.Td>
             <Table.Td>{pair.getPlayer1Name()}</Table.Td>

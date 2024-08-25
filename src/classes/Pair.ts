@@ -6,10 +6,19 @@ export class Pair {
     private _cumulativeWins: number = 0;
     private _hasPaid: boolean = false;
 
-    public constructor(player1Name: string, player2Name: string, pairNumber: number) {
+    public constructor(
+        player1Name: string,
+        player2Name: string,
+        pairNumber: number,
+        cumulativePointDiff?: number,
+        cumulativeWins?: number,
+        hasPaid?: boolean) {
         this._player1Name = player1Name;
         this._player2Name = player2Name;
         this._pairNumber = pairNumber;
+        if (cumulativePointDiff) this._cumulativePointDiff = cumulativePointDiff;
+        if (cumulativeWins) this._cumulativeWins = cumulativeWins;
+        if (hasPaid !== undefined) this._hasPaid = hasPaid;
     }
 
     //#region FIREBASE_TOOLS
