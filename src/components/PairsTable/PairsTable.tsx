@@ -1,13 +1,24 @@
 import { Pair } from "@/classes/Pair"
-import { Table } from "@mantine/core";
+import { Button, Checkbox, Table } from "@mantine/core";
 
-export function PairsTable({ pairs }: PairsTableProps) {
-    console.log(pairs);
+export function PairsTable({ pairs, deletePair }: PairsTableProps) {
+    const hasPaidChanged = (pair: Pair, event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(event.currentTarget.checked);
+        pair.setHasPaid(event.currentTarget.checked);
+    }
+
     const rows = pairs.map((pair: Pair) => {
         return <Table.Tr key={`${pair.getPairKey()}`}>
+            <Table.Td>{pair.getPairNumber()}</Table.Td>
             <Table.Td>{pair.getPlayer1Name()}</Table.Td>
             <Table.Td>{pair.getPlayer2Name()}</Table.Td>
-        </Table.Tr>
+            <Table.Td>{pair.getPointDiff()}</Table.Td>
+            <Table.Td>{pair.getWins()}</Table.Td>
+            <Table.Td>
+                <Checkbox aria-label="Has paid" checked={pair.getHasPaid()} onChange={(event) => hasPaidChanged(pair, event)} />
+            </Table.Td>
+            <Table.Td><Button size="compact-xs" onClick={() => deletePair(pair)} variant="filled">Delete</Button></Table.Td>
+        </Table.Tr >
     })
 
     return (
@@ -15,8 +26,12 @@ export function PairsTable({ pairs }: PairsTableProps) {
             <Table>
                 <Table.Thead>
                     <Table.Tr>
+                        <Table.Th>#</Table.Th>
                         <Table.Th>Player 1 Name</Table.Th>
                         <Table.Th>Player 2 Name</Table.Th>
+                        <Table.Th>Point Diff</Table.Th>
+                        <Table.Th>Wins</Table.Th>
+                        <Table.Th>Has Paid</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -29,4 +44,5 @@ export function PairsTable({ pairs }: PairsTableProps) {
 
 interface PairsTableProps {
     pairs: Pair[];
+    deletePair: (pair: Pair) => any
 }

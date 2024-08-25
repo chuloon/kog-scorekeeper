@@ -2,14 +2,14 @@ import { Pair } from '@/classes/Pair';
 import { Button, Group, Input, TextInput } from '@mantine/core';
 import { createFormActions, useForm } from '@mantine/form';
 
-export function AddNewPair({ handleAddNewPair }: AddNewPairProps) {
+export function AddNewPair({ handleAddNewPair, currentNumberOfPairs }: AddNewPairProps) {
     const form = useForm({
         mode: 'uncontrolled',
         name: 'new-pair-form'
     })
 
     const addPairClick = (values: any) => {
-        const newPair: Pair = new Pair(values?.player1Name, values?.player2Name)
+        const newPair: Pair = new Pair(values?.player1Name, values?.player2Name, currentNumberOfPairs + 1)
         handleAddNewPair(newPair);
         createFormActions('new-pair-form').reset();
     }
@@ -40,5 +40,6 @@ export function AddNewPair({ handleAddNewPair }: AddNewPairProps) {
 }
 
 interface AddNewPairProps {
-    handleAddNewPair: (newPair: Pair) => void
+    handleAddNewPair: (newPair: Pair) => void;
+    currentNumberOfPairs: number;
 }

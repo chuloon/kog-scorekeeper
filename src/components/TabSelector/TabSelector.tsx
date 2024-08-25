@@ -3,12 +3,21 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useState } from 'react';
 import classes from './TabSelector.module.css';
+import { addDoc, collection } from '@firebase/firestore';
+import { db } from '@/firebase';
 
 export function TabSelector() {
     const [pairs, setPairs] = useState([] as Pair[]);
-    const addNewPair = (newPair: Pair) => {
+    const addNewPair = async (newPair: Pair) => {
+        await addDoc(collection(db, "pairs"), {
+            ...newPair.getPairData()
+        })
         setPairs([...pairs, newPair]);
-        console.log(pairs);
+    }
+
+    const deletePair = (pair: Pair) => {
+        const tempArray = pairs.filter(p => p.getPairKey() !== pair.getPairKey())
+        setPairs(tempArray);
     }
 
     return (
@@ -27,7 +36,7 @@ export function TabSelector() {
                 </Tabs.List>
 
                 <Tabs.Panel className={classes.tabContent} value="gallery">
-                    <PairsContent addNewPair={addNewPair} pairs={pairs} />
+                    <PairsContent addNewPair={addNewPair} pairs={pairs} deletePair={deletePair} />
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="messages">
