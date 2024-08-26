@@ -3,11 +3,11 @@ import { AddNewMatchUp } from "../AddNewMatchUp/AddNewMatchUp";
 import { CourtTable } from "../CourtTable/CourtTable";
 import { MatchUp } from "@/classes/MatchUp";
 
-export function MatchUpsContent({ matchUps }: MatchUpsContentProps) {
+export function MatchUpsContent({ matchUps, handleAddNewMatchUp }: MatchUpsContentProps) {
 
     return (
         <>
-            <AddNewMatchUp />
+            <AddNewMatchUp handleAddNewMatchUp={handleAddNewMatchUp} />
             <Flex direction="column">
                 <Title order={2}>Court 1</Title>
                 <CourtTable matchUps={matchUps} />
@@ -18,4 +18,5 @@ export function MatchUpsContent({ matchUps }: MatchUpsContentProps) {
 
 interface MatchUpsContentProps {
     matchUps: MatchUp[];
+    handleAddNewMatchUp: (newMatchUp: MatchUp) => void;
 }

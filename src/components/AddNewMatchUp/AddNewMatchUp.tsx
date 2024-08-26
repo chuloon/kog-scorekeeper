@@ -1,13 +1,17 @@
-import { Button, Flex, Group, Text, TextInput } from "@mantine/core";
-import { useForm } from "@mantine/form"
+import { MatchUp } from "@/classes/MatchUp";
+import { Button, Flex, Group, Select, Text, TextInput } from "@mantine/core";
+import { createFormActions, useForm } from "@mantine/form"
 
-export function AddNewMatchUp() {
+export function AddNewMatchUp({ handleAddNewMatchUp }: AddNewMatchUpProps) {
     const form = useForm({
         mode: 'uncontrolled',
         name: 'new-match-up-form'
     })
 
     const addMatchUpClick = (values: any) => {
+        const newMatchUp: MatchUp = new MatchUp(values?.pair1, values?.pair2, values?.pair3, values?.pair4, values?.court);
+        handleAddNewMatchUp(newMatchUp);
+        createFormActions('new-match-up-form').reset();
     }
 
     return (
@@ -46,9 +50,9 @@ export function AddNewMatchUp() {
                         />
                     </Group>
                     <Group>
-                        <TextInput
-                            withAsterisk
-                            placeholder="Court"
+                        <Select
+                            placeholder="Court Number"
+                            data={["1", "2", "3", "4"]}
                             key={form.key('court')}
                             {...form.getInputProps('court')}
                         />
@@ -58,4 +62,8 @@ export function AddNewMatchUp() {
             </form>
         </>
     )
+}
+
+interface AddNewMatchUpProps {
+    handleAddNewMatchUp: (newMatchUp: MatchUp) => void;
 }

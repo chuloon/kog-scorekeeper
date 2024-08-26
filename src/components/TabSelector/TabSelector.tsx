@@ -3,7 +3,7 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } from '@firebase/firestore';
 import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
@@ -13,7 +13,8 @@ export function TabSelector() {
     const [matchUps, setMatchUps] = useState([] as MatchUp[]);
 
     useEffect(() => {
-        getPairsFromDatabase().then(data => setPairs(data))
+        getPairsFromDatabase().then(data => setPairs(data));
+        getMatchUpsFromDatabase().then(data => setMatchUps(data));
     }, [])
 
     //#region PAIR HELPERS
@@ -56,6 +57,38 @@ export function TabSelector() {
     }
     //#endregion
 
+    const addNewMatchUp = async (matchUp: MatchUp) => {
+        const docRef = await addDoc(collection(db, "matchUps"), {
+            ...matchUp.getMatchUpData()
+        });
+
+        const matchUpId = docRef.id;
+        await updateDoc(doc(db, "matchUps", matchUpId), {
+            ...matchUp.getMatchUpData(), id: matchUpId
+        });
+
+        const serializedMatchUps = await getMatchUpsFromDatabase();
+        setMatchUps(serializedMatchUps);
+    }
+
+    const getMatchUpsFromDatabase = async () => {
+        return await getDocs(collection(db, "matchUps"))
+            .then((querySnapshot) => {
+                const matchUpData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
+                const serializedMatchUpData = matchUpData.map(matchUp =>
+                    new MatchUp(
+                        matchUp.pair1,
+                        matchUp.pair2,
+                        matchUp.pair3,
+                        matchUp.pair4,
+                        matchUp.court,
+                        matchUp.id
+                    )
+                )
+                return serializedMatchUpData;
+            })
+    }
+
     return (
         <>
             <Tabs defaultValue="gallery">
@@ -76,7 +109,7 @@ export function TabSelector() {
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="messages">
-                    <MatchUpsContent matchUps={matchUps} />
+                    <MatchUpsContent matchUps={matchUps} handleAddNewMatchUp={addNewMatchUp} />
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="settings">
