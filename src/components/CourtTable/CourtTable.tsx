@@ -39,5 +39,5 @@ export function CourtTable({ matchUps }: CourtTableProps) {
 }
 
 interface CourtTableProps {
-    matchUps: MatchUp[]
+    matchUps: MatchUp[];
 }

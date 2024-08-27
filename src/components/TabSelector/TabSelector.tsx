@@ -7,6 +7,7 @@ import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } 
 import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
+import * as MatchData from '@/data/MatchUpData';
 
 export function TabSelector() {
     const [pairs, setPairs] = useState([] as Pair[]);
@@ -14,7 +15,6 @@ export function TabSelector() {
 
     useEffect(() => {
         getPairsFromDatabase().then(data => setPairs(data));
-        getMatchUpsFromDatabase().then(data => setMatchUps(data));
     }, [])
 
     //#region PAIR HELPERS
@@ -57,36 +57,43 @@ export function TabSelector() {
     }
     //#endregion
 
-    const addNewMatchUp = async (matchUp: MatchUp) => {
-        const docRef = await addDoc(collection(db, "matchUps"), {
-            ...matchUp.getMatchUpData()
-        });
+    const createBracket = () => {
+        if (pairs.length < 16) {
+            // Display not enough pairs message
+            setMatchUps([]);
+        }
+        else {
+            switch (pairs.length) {
+                case 16:
+                    setMatchUps(MatchData.SixteenPairs);
+                    break;
+                case 17:
+                    setMatchUps(MatchData.SeventeenPairs);
+                    break;
+                case 18:
+                    setMatchUps(MatchData.EighteenPairs);
+                    break;
+                case 19:
+                    setMatchUps(MatchData.NineteenPairs);
+                    break;
+                case 20:
+                    setMatchUps(MatchData.TwentyPairs);
+                    break;
+                case 21:
+                    setMatchUps(MatchData.TwentyOnePairs);
+                    break;
+                case 22:
+                    setMatchUps(MatchData.TwentyTwoPairs);
+                    break;
+                case 23:
+                    setMatchUps(MatchData.TwentyThreePairs);
+                    break;
+                case 24:
+                    setMatchUps(MatchData.TwentyFourPairs);
+                    break;
+            }
+        }
 
-        const matchUpId = docRef.id;
-        await updateDoc(doc(db, "matchUps", matchUpId), {
-            ...matchUp.getMatchUpData(), id: matchUpId
-        });
-
-        const serializedMatchUps = await getMatchUpsFromDatabase();
-        setMatchUps(serializedMatchUps);
-    }
-
-    const getMatchUpsFromDatabase = async () => {
-        return await getDocs(collection(db, "matchUps"))
-            .then((querySnapshot) => {
-                const matchUpData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
-                const serializedMatchUpData = matchUpData.map(matchUp =>
-                    new MatchUp(
-                        matchUp.pair1,
-                        matchUp.pair2,
-                        matchUp.pair3,
-                        matchUp.pair4,
-                        matchUp.court,
-                        matchUp.id
-                    )
-                )
-                return serializedMatchUpData;
-            })
     }
 
     return (
@@ -109,7 +116,7 @@ export function TabSelector() {
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="messages">
-                    <MatchUpsContent matchUps={matchUps} handleAddNewMatchUp={addNewMatchUp} />
+                    <MatchUpsContent matchUps={matchUps} />
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="settings">

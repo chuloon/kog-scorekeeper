@@ -15,8 +15,8 @@ export class MatchUp {
         pair3: number,
         pair4: number,
         court: number,
+        round?: number,
         id?: string,
-        round?: number
     ) {
         this._pair1 = pair1;
         this._pair2 = pair2;

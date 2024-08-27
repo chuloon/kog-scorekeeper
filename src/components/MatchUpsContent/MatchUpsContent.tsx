@@ -1,16 +1,21 @@
-import { Flex, Title } from "@mantine/core";
-import { AddNewMatchUp } from "../AddNewMatchUp/AddNewMatchUp";
+import { Flex, Text, Title } from "@mantine/core";
 import { CourtTable } from "../CourtTable/CourtTable";
 import { MatchUp } from "@/classes/MatchUp";
 
-export function MatchUpsContent({ matchUps, handleAddNewMatchUp }: MatchUpsContentProps) {
+export function MatchUpsContent({ matchUps }: MatchUpsContentProps) {
 
     return (
         <>
-            <AddNewMatchUp handleAddNewMatchUp={handleAddNewMatchUp} />
             <Flex direction="column">
-                <Title order={2}>Court 1</Title>
-                <CourtTable matchUps={matchUps} />
+                {
+                    matchUps.length > 0 ?
+                        <>
+                            <Title order={2}>Court 1</Title>
+                            <CourtTable matchUps={matchUps} />
+                        </> :
+                        <Text>Not enough pairs registered!</Text>
+                }
+
             </Flex>
         </>
     )
@@ -18,5 +23,4 @@ export function MatchUpsContent({ matchUps, handleAddNewMatchUp }: MatchUpsConte
 
 interface MatchUpsContentProps {
     matchUps: MatchUp[];
-    handleAddNewMatchUp: (newMatchUp: MatchUp) => void;
 }
