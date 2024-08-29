@@ -30,9 +30,13 @@ export function TabSelector() {
             const pair3: Pair = pairs.find(pair => matchUp.getPair3() === pair.getPairNumber()) as Pair;
             const pair4: Pair = pairs.find(pair => matchUp.getPair4() === pair.getPairNumber()) as Pair;
 
+
             if (pair1 && pair2 && pair3 && pair4) {
+
+
                 const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
                 const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
+
 
                 pair1?.addPointDiff(t1PointDiff);
                 pair2?.addPointDiff(t1PointDiff);
@@ -44,10 +48,21 @@ export function TabSelector() {
 
                 setPairs([...filteredPairs, pair1, pair2, pair3, pair4]);
 
-                await setDoc(doc(db, "pairs", pair1.getId()), { ...pair1.getPairData() });
-                await setDoc(doc(db, "pairs", pair2.getId()), { ...pair2.getPairData() });
-                await setDoc(doc(db, "pairs", pair3.getId()), { ...pair3.getPairData() });
-                await setDoc(doc(db, "pairs", pair4.getId()), { ...pair4.getPairData() });
+                try {
+                    await setDoc(doc(db, "pairs", pair1.getId()), { ...pair1.getPairData() });
+                    await setDoc(doc(db, "pairs", pair2.getId()), { ...pair2.getPairData() });
+                    await setDoc(doc(db, "pairs", pair3.getId()), { ...pair3.getPairData() });
+                    await setDoc(doc(db, "pairs", pair4.getId()), { ...pair4.getPairData() });
+                }
+                catch (err) {
+                    console.log(`${matchUp.getPair1()}/${matchUp.getPair2()} => ${matchUp.getT1Score()}, ${matchUp.getPair3()}/${matchUp.getPair4()} => ${matchUp.getT2Score()}`)
+
+                    console.log("PAIR1", pair1.getPairData());
+                    console.log("PAIR2", pair2.getPairData());
+                    console.log("PAIR3", pair3.getPairData());
+                    console.log("PAIR4", pair4.getPairData());
+                    console.log("MatchUp", matchUp);
+                }
             }
         })
     }
@@ -57,7 +72,6 @@ export function TabSelector() {
         const docRef = await addDoc(collection(db, "pairs"), {
             ...newPair.getPairData()
         });
-
         const docId = docRef.id;
         await setDoc(doc(db, "pairs", docId), {
             ...newPair.getPairData(),
@@ -174,7 +188,7 @@ export function TabSelector() {
     //#endregion
 
     const addTestData = () => {
-        for (let i = 0; i < 24; i++) {
+        for (let i = 1; i < 25; i++) {
             addNewPair(new Pair(generateUUID(), generateUUID(), i))
         }
     }
