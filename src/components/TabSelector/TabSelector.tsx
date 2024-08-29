@@ -1,4 +1,4 @@
-import { Tabs } from '@mantine/core';
+import { Button, Tabs } from '@mantine/core';
 import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
@@ -15,7 +15,11 @@ export function TabSelector() {
 
     useEffect(() => {
         getPairsFromDatabase().then(data => setPairs(data));
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        if (pairs.length > 0) createBracket();
+    }, [pairs]);
 
     //#region PAIR HELPERS
     const addNewPair = async (newPair: Pair) => {
@@ -52,48 +56,81 @@ export function TabSelector() {
                         pair.standing
                     )
                 )
+
+                serializedPairData.sort((a, b) => { return a.getPairNumber() - b.getPairNumber() });
                 return serializedPairData;
             });
     }
     //#endregion
 
-    const createBracket = () => {
-        if (pairs.length < 16) {
-            // Display not enough pairs message
-            setMatchUps([]);
+    const getMatchUpsFromDatabase = async () => {
+        return await getDocs(collection(db, "matchUps"))
+            .then((querySnapshot) => {
+                const matchUpData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
+                const serializedMatchUpData = matchUpData.map(matchUp =>
+                    new MatchUp(
+                        matchUp.pair1,
+                        matchUp.pair2,
+                        matchUp.pair3,
+                        matchUp.pair4,
+                        matchUp.court,
+                        {
+                            id: matchUp.id,
+                            t1Score: matchUp.t1Score,
+                            t2Score: matchUp.t2Score,
+                            round: matchUp.round
+                        }
+                    )
+                )
+
+                serializedMatchUpData.sort((a, b) => { return a.getRound() - b.getRound() });
+                return serializedMatchUpData;
+            });
+    }
+
+    const createBracket = async () => {
+        const serializedMatchUps: MatchUp[] = await getMatchUpsFromDatabase();
+        if (serializedMatchUps.length > 0) {
+            setMatchUps(serializedMatchUps);
         }
         else {
-            switch (pairs.length) {
-                case 16:
-                    setMatchUps(MatchData.SixteenPairs);
-                    break;
-                case 17:
-                    setMatchUps(MatchData.SeventeenPairs);
-                    break;
-                case 18:
-                    setMatchUps(MatchData.EighteenPairs);
-                    break;
-                case 19:
-                    setMatchUps(MatchData.NineteenPairs);
-                    break;
-                case 20:
-                    setMatchUps(MatchData.TwentyPairs);
-                    break;
-                case 21:
-                    setMatchUps(MatchData.TwentyOnePairs);
-                    break;
-                case 22:
-                    setMatchUps(MatchData.TwentyTwoPairs);
-                    break;
-                case 23:
-                    setMatchUps(MatchData.TwentyThreePairs);
-                    break;
-                case 24:
-                    setMatchUps(MatchData.TwentyFourPairs);
-                    break;
+            if (pairs.length < 16) {
+                // Display not enough pairs message
+                setMatchUps([]);
+            }
+            else {
+                switch (pairs.length) {
+                    case 16:
+                        setMatchUps(MatchData.SixteenPairs);
+                        break;
+                    case 17:
+                        setMatchUps(MatchData.SeventeenPairs);
+                        break;
+                    case 18:
+                        setMatchUps(MatchData.EighteenPairs);
+                        break;
+                    case 19:
+                        setMatchUps(MatchData.NineteenPairs);
+                        break;
+                    case 20:
+                        setMatchUps(MatchData.TwentyPairs);
+                        break;
+                    case 21:
+                        setMatchUps(MatchData.TwentyOnePairs);
+                        break;
+                    case 22:
+                        setMatchUps(MatchData.TwentyTwoPairs);
+                        break;
+                    case 23:
+                        setMatchUps(MatchData.TwentyThreePairs);
+                        break;
+                    case 24:
+                        setMatchUps(MatchData.TwentyFourPairs);
+                        console.log(MatchData.TwentyFourPairs)
+                        break;
+                }
             }
         }
-
     }
 
     return (
@@ -116,7 +153,11 @@ export function TabSelector() {
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="messages">
-                    <MatchUpsContent matchUps={matchUps} />
+                    {
+                        matchUps.length > 0 ?
+                            <MatchUpsContent matchUps={matchUps} /> :
+                            null
+                    }
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="settings">

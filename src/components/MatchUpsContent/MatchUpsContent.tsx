@@ -15,7 +15,6 @@ export function MatchUpsContent({ matchUps }: MatchUpsContentProps) {
                         </> :
                         <Text>Not enough pairs registered!</Text>
                 }
-
             </Flex>
         </>
     )
