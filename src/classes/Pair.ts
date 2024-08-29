@@ -72,6 +72,10 @@ export class Pair {
     //#endregion
 
     //#region POINT_DIFF
+    public resetPointDiff(): void {
+        this._cumulativePointDiff = 0;
+    }
+
     public addPointDiff(pointDiff: number): void {
         this._cumulativePointDiff += pointDiff;
     }

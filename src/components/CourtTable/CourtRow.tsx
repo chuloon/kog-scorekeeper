@@ -4,7 +4,7 @@ import { doc, setDoc } from "@firebase/firestore";
 import { Table, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 
-export function CourtRow({ matchUp }: CourtRowProps) {
+export function CourtRow({ matchUp, calculateStandings }: CourtRowProps) {
     const [t1Score, setT1Score] = useState(matchUp.getT1Score()?.toString());
     const [t2Score, setT2Score] = useState(matchUp.getT2Score()?.toString());
 
@@ -18,11 +18,11 @@ export function CourtRow({ matchUp }: CourtRowProps) {
 
     useEffect(() => {
         saveMatchUpsToDatabase();
+        calculateStandings()
     }, [t1Score, t2Score])
 
     const saveMatchUpsToDatabase = async () => {
         const matchUpRef = doc(db, "matchUps", matchUp.getMatchId());
-        console.log(matchUp);
         await setDoc(matchUpRef, {
             ...matchUp.getMatchUpData()
         }, { merge: true })
@@ -48,4 +48,5 @@ export function CourtRow({ matchUp }: CourtRowProps) {
 
 interface CourtRowProps {
     matchUp: MatchUp;
+    calculateStandings: () => void;
 }

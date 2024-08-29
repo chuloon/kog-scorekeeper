@@ -3,7 +3,7 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, or, query, updateDoc, where } from '@firebase/firestore';
 import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
@@ -20,6 +20,32 @@ export function TabSelector() {
     useEffect(() => {
         if (pairs.length > 0) createBracket();
     }, [pairs]);
+
+    const calculateStandings = () => {
+        pairs.map(pair => pair.resetPointDiff());
+
+        matchUps.map(matchUp => {
+            const pair1: Pair = pairs.find(pair => matchUp.getPair1() === pair.getPairNumber()) as Pair;
+            const pair2: Pair = pairs.find(pair => matchUp.getPair2() === pair.getPairNumber()) as Pair;
+            const pair3: Pair = pairs.find(pair => matchUp.getPair3() === pair.getPairNumber()) as Pair;
+            const pair4: Pair = pairs.find(pair => matchUp.getPair4() === pair.getPairNumber()) as Pair;
+
+            const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
+            const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
+
+            pair1?.addPointDiff(t1PointDiff);
+            pair2?.addPointDiff(t1PointDiff);
+            pair3?.addPointDiff(t2PointDiff);
+            pair4?.addPointDiff(t2PointDiff);
+
+            console.log(pair1);
+
+            const pairArray = [pair1?.getPairNumber(), pair2?.getPairNumber(), pair3?.getPairNumber(), pair4?.getPairNumber()]
+            const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()))
+
+            setPairs([...filteredPairs, pair1, pair2, pair3, pair4])
+        })
+    }
 
     //#region PAIR HELPERS
     const addNewPair = async (newPair: Pair) => {
@@ -63,6 +89,7 @@ export function TabSelector() {
     }
     //#endregion
 
+    //#region MATCHUP HELPERS
     const getMatchUpsFromDatabase = async () => {
         return await getDocs(collection(db, "matchUps"))
             .then((querySnapshot) => {
@@ -132,6 +159,7 @@ export function TabSelector() {
             }
         }
     }
+    //#endregion
 
     return (
         <>
@@ -155,7 +183,7 @@ export function TabSelector() {
                 <Tabs.Panel className={classes.tabContent} value="messages">
                     {
                         matchUps.length > 0 ?
-                            <MatchUpsContent matchUps={matchUps} /> :
+                            <MatchUpsContent calculateStandings={calculateStandings} matchUps={matchUps} /> :
                             null
                     }
                 </Tabs.Panel>
