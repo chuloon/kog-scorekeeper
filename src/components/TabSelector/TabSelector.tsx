@@ -3,7 +3,7 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
-import { addDoc, collection, deleteDoc, doc, getDocs, or, query, updateDoc, where } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
 import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
@@ -24,34 +24,46 @@ export function TabSelector() {
     const calculateStandings = () => {
         pairs.map(pair => pair.resetPointDiff());
 
-        matchUps.map(matchUp => {
+        matchUps.map(async (matchUp) => {
             const pair1: Pair = pairs.find(pair => matchUp.getPair1() === pair.getPairNumber()) as Pair;
             const pair2: Pair = pairs.find(pair => matchUp.getPair2() === pair.getPairNumber()) as Pair;
             const pair3: Pair = pairs.find(pair => matchUp.getPair3() === pair.getPairNumber()) as Pair;
             const pair4: Pair = pairs.find(pair => matchUp.getPair4() === pair.getPairNumber()) as Pair;
 
-            const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
-            const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
+            if (pair1 && pair2 && pair3 && pair4) {
+                const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
+                const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
 
-            pair1?.addPointDiff(t1PointDiff);
-            pair2?.addPointDiff(t1PointDiff);
-            pair3?.addPointDiff(t2PointDiff);
-            pair4?.addPointDiff(t2PointDiff);
+                pair1?.addPointDiff(t1PointDiff);
+                pair2?.addPointDiff(t1PointDiff);
+                pair3?.addPointDiff(t2PointDiff);
+                pair4?.addPointDiff(t2PointDiff);
 
-            console.log(pair1);
+                const pairArray = [pair1?.getPairNumber(), pair2?.getPairNumber(), pair3?.getPairNumber(), pair4?.getPairNumber()]
+                const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()))
 
-            const pairArray = [pair1?.getPairNumber(), pair2?.getPairNumber(), pair3?.getPairNumber(), pair4?.getPairNumber()]
-            const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()))
+                setPairs([...filteredPairs, pair1, pair2, pair3, pair4]);
 
-            setPairs([...filteredPairs, pair1, pair2, pair3, pair4])
+                await setDoc(doc(db, "pairs", pair1.getId()), { ...pair1.getPairData() });
+                await setDoc(doc(db, "pairs", pair2.getId()), { ...pair2.getPairData() });
+                await setDoc(doc(db, "pairs", pair3.getId()), { ...pair3.getPairData() });
+                await setDoc(doc(db, "pairs", pair4.getId()), { ...pair4.getPairData() });
+            }
         })
     }
 
     //#region PAIR HELPERS
     const addNewPair = async (newPair: Pair) => {
-        await addDoc(collection(db, "pairs"), {
+        const docRef = await addDoc(collection(db, "pairs"), {
             ...newPair.getPairData()
         });
+
+        const docId = docRef.id;
+        await setDoc(doc(db, "pairs", docId), {
+            ...newPair.getPairData(),
+            id: docId
+        })
+
         const serializedPairs = await getPairsFromDatabase();
         setPairs(serializedPairs)
     }
@@ -79,7 +91,8 @@ export function TabSelector() {
                         pair.cumulativePointDiff,
                         pair.cumulativeWins,
                         pair.hasPaid,
-                        pair.standing
+                        pair.standing,
+                        pair.id
                     )
                 )
 
@@ -153,7 +166,6 @@ export function TabSelector() {
                         break;
                     case 24:
                         setMatchUps(MatchData.TwentyFourPairs);
-                        console.log(MatchData.TwentyFourPairs)
                         break;
                 }
             }
@@ -161,8 +173,32 @@ export function TabSelector() {
     }
     //#endregion
 
+    const addTestData = () => {
+        for (let i = 0; i < 24; i++) {
+            addNewPair(new Pair(generateUUID(), generateUUID(), i))
+        }
+    }
+
+    const generateUUID = () => {
+        let
+            d = new Date().getTime(),
+            d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            let r = Math.random() * 16;
+            if (d > 0) {
+                r = (d + r) % 16 | 0;
+                d = Math.floor(d / 16);
+            } else {
+                r = (d2 + r) % 16 | 0;
+                d2 = Math.floor(d2 / 16);
+            }
+            return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+        });
+    };
+
     return (
         <>
+            <Button onClick={addTestData}>Add Test Data</Button>
             <Tabs defaultValue="gallery">
                 <Tabs.List>
                     <Tabs.Tab value="gallery">
