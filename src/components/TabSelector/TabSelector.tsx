@@ -3,7 +3,7 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, setDoc, where } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, where } from '@firebase/firestore';
 import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
@@ -14,6 +14,7 @@ export function TabSelector() {
     const [matchUps, setMatchUps] = useState([] as MatchUp[]);
 
     useEffect(() => {
+        addByePair();
         getPairsFromDatabase().then(data => setPairs(data));
     }, []);
 
@@ -55,19 +56,31 @@ export function TabSelector() {
                     await setDoc(doc(db, "pairs", pair4.getId()), { ...pair4.getPairData() });
                 }
                 catch (err) {
-                    console.log(`${matchUp.getPair1()}/${matchUp.getPair2()} => ${matchUp.getT1Score()}, ${matchUp.getPair3()}/${matchUp.getPair4()} => ${matchUp.getT2Score()}`)
-
-                    console.log("PAIR1", pair1.getPairData());
-                    console.log("PAIR2", pair2.getPairData());
-                    console.log("PAIR3", pair3.getPairData());
-                    console.log("PAIR4", pair4.getPairData());
-                    console.log("MatchUp", matchUp);
+                    console.error(err);
                 }
             }
         })
     }
 
     //#region PAIR HELPERS
+    const addByePair = () => {
+        const byePair = new Pair("BYE1", "BYE2", -1);
+        const q = query(collection(db, "pairs"), where("pairNumber", "==", -1));
+        getDocs(q).then(async (querySnapshot) => {
+            if (querySnapshot.docs.length === 0) {
+                const byeRef = await addDoc(collection(db, "pairs"), {
+                    ...byePair.getPairData()
+                })
+
+                await setDoc(doc(db, "pairs", byeRef.id), {
+                    ...byePair.getPairData(),
+                    id: byeRef.id
+                })
+            }
+
+        })
+    }
+
     const addNewPair = async (newPair: Pair) => {
         const docRef = await addDoc(collection(db, "pairs"), {
             ...newPair.getPairData()
@@ -79,11 +92,11 @@ export function TabSelector() {
         })
 
         const serializedPairs = await getPairsFromDatabase();
-        setPairs(serializedPairs)
+        setPairs([...pairs, ...serializedPairs])
     }
 
     const deletePair = (pair: Pair) => {
-        const q = query(collection(db, "pairs"), where("pairNumber", "==", pair.getPairNumber()))
+        const q = query(collection(db, "pairs"), orderBy('pairNumber'), where("pairNumber", "==", pair.getPairNumber()))
         getDocs(q).then((querySnapshot) => {
             querySnapshot.docs.forEach(docData => {
                 deleteDoc(doc(db, "pairs", docData.id));
@@ -94,7 +107,8 @@ export function TabSelector() {
     }
 
     const getPairsFromDatabase = async () => {
-        return await getDocs(collection(db, "pairs"))
+        const q = query(collection(db, "pairs"), orderBy('pairNumber'))
+        return await getDocs(q)
             .then((querySnapshot) => {
                 const pairData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
                 const serializedPairData = pairData.map(pair =>
@@ -110,7 +124,7 @@ export function TabSelector() {
                     )
                 )
 
-                serializedPairData.sort((a, b) => { return a.getPairNumber() - b.getPairNumber() });
+                // serializedPairData.sort((a, b) => { return a.getPairNumber() - b.getPairNumber() });
                 return serializedPairData;
             });
     }
@@ -153,7 +167,7 @@ export function TabSelector() {
                 setMatchUps([]);
             }
             else {
-                switch (pairs.length) {
+                switch (pairs.length - 1) {
                     case 16:
                         setMatchUps(MatchData.SixteenPairs);
                         break;

@@ -28,17 +28,24 @@ export function CourtRow({ matchUp, calculateStandings }: CourtRowProps) {
         }, { merge: true })
     }
 
+    const getPairText = (pairNumber: number): number | string => {
+        if (pairNumber === -1) {
+            return 'BYE';
+        }
+        return pairNumber;
+    }
+
     return (
         <Table.Tr key={`${matchUp.getMatchId()}`}>
             <Table.Td>{matchUp.getRound()}</Table.Td>
-            <Table.Td>{matchUp.getPair1()}</Table.Td>
-            <Table.Td>{matchUp.getPair2()}</Table.Td>
+            <Table.Td>{getPairText(matchUp.getPair1())}</Table.Td>
+            <Table.Td>{getPairText(matchUp.getPair2())}</Table.Td>
             <Table.Td>
                 <TextInput value={t1Score} onChange={event => setT1Score(event.currentTarget.value)} />
             </Table.Td>
             <Table.Td>vs</Table.Td>
-            <Table.Td>{matchUp.getPair3()}</Table.Td>
-            <Table.Td>{matchUp.getPair4()}</Table.Td>
+            <Table.Td>{getPairText(matchUp.getPair3())}</Table.Td>
+            <Table.Td>{getPairText(matchUp.getPair4())}</Table.Td>
             <Table.Td>
                 <TextInput value={t2Score} onChange={event => setT2Score(event.currentTarget.value)} />
             </Table.Td>
