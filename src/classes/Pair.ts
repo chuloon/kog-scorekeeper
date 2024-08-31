@@ -90,6 +90,10 @@ export class Pair {
     //#endregion
 
     //#region WINS
+    public resetWins(): void {
+        this._cumulativeWins = 0;
+    }
+
     public addWin(): void {
         this._cumulativeWins++;
     }

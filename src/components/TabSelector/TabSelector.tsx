@@ -3,11 +3,10 @@ import { PairsContent } from '../PairsContent/PairsContent';
 import { Pair } from '@/classes/Pair';
 import { useEffect, useState } from 'react';
 import classes from './TabSelector.module.css';
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, where } from '@firebase/firestore';
-import { db } from '@/firebase';
 import { MatchUpsContent } from '../MatchUpsContent/MatchUpsContent';
 import { MatchUp } from '@/classes/MatchUp';
 import * as MatchData from '@/data/MatchUpData';
+import { StandingsContent } from '../StandingsContent/StandingsContent';
 
 export function TabSelector() {
     const [pairs, setPairs] = useState([] as Pair[]);
@@ -15,15 +14,27 @@ export function TabSelector() {
 
     useEffect(() => {
         addByePair();
-        getPairsFromDatabase().then(data => setPairs(data));
+        getPairsFromDatabase();
     }, []);
 
     useEffect(() => {
         if (pairs.length > 0) createBracket();
+
+        const stringifiedPairs = pairs.map(pair => {
+            return pair.getPairData()
+        })
+        localStorage.setItem("pairs", JSON.stringify(stringifiedPairs));
     }, [pairs]);
 
+    useEffect(() => {
+        localStorage.setItem('matchUps', JSON.stringify(matchUps));
+    }, [matchUps])
+
     const calculateStandings = () => {
-        pairs.map(pair => pair.resetPointDiff());
+        pairs.map(pair => {
+            pair.resetPointDiff();
+            pair.resetWins();
+        });
 
         matchUps.map(async (matchUp) => {
             const pair1: Pair = pairs.find(pair => matchUp.getPair1() === pair.getPairNumber()) as Pair;
@@ -31,13 +42,20 @@ export function TabSelector() {
             const pair3: Pair = pairs.find(pair => matchUp.getPair3() === pair.getPairNumber()) as Pair;
             const pair4: Pair = pairs.find(pair => matchUp.getPair4() === pair.getPairNumber()) as Pair;
 
-
             if (pair1 && pair2 && pair3 && pair4) {
 
 
                 const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
                 const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
 
+                if (t1PointDiff > 0) {
+                    pair1.addWin();
+                    pair2.addWin();
+                }
+                if (t2PointDiff > 0) {
+                    pair3.addWin();
+                    pair4.addWin();
+                }
 
                 pair1?.addPointDiff(t1PointDiff);
                 pair2?.addPointDiff(t1PointDiff);
@@ -48,16 +66,6 @@ export function TabSelector() {
                 const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()))
 
                 setPairs([...filteredPairs, pair1, pair2, pair3, pair4]);
-
-                try {
-                    await setDoc(doc(db, "pairs", pair1.getId()), { ...pair1.getPairData() });
-                    await setDoc(doc(db, "pairs", pair2.getId()), { ...pair2.getPairData() });
-                    await setDoc(doc(db, "pairs", pair3.getId()), { ...pair3.getPairData() });
-                    await setDoc(doc(db, "pairs", pair4.getId()), { ...pair4.getPairData() });
-                }
-                catch (err) {
-                    console.error(err);
-                }
             }
         })
     }
@@ -65,146 +73,118 @@ export function TabSelector() {
     //#region PAIR HELPERS
     const addByePair = () => {
         const byePair = new Pair("BYE1", "BYE2", -1);
-        const q = query(collection(db, "pairs"), where("pairNumber", "==", -1));
-        getDocs(q).then(async (querySnapshot) => {
-            if (querySnapshot.docs.length === 0) {
-                const byeRef = await addDoc(collection(db, "pairs"), {
-                    ...byePair.getPairData()
-                })
+        const hasByePair = pairs.find(pair => pair.getPairNumber() === byePair.getPairNumber()) !== undefined;
 
-                await setDoc(doc(db, "pairs", byeRef.id), {
-                    ...byePair.getPairData(),
-                    id: byeRef.id
-                })
-            }
-
-        })
+        if (!hasByePair) {
+            setPairs([...pairs, byePair]);
+        }
     }
 
-    const addNewPair = async (newPair: Pair) => {
-        const docRef = await addDoc(collection(db, "pairs"), {
-            ...newPair.getPairData()
-        });
-        const docId = docRef.id;
-        await setDoc(doc(db, "pairs", docId), {
-            ...newPair.getPairData(),
-            id: docId
-        })
-
-        const serializedPairs = await getPairsFromDatabase();
-        setPairs([...pairs, ...serializedPairs])
+    const addNewPair = (newPair: Pair) => {
+        setPairs([...pairs, newPair])
     }
 
     const deletePair = (pair: Pair) => {
-        const q = query(collection(db, "pairs"), orderBy('pairNumber'), where("pairNumber", "==", pair.getPairNumber()))
-        getDocs(q).then((querySnapshot) => {
-            querySnapshot.docs.forEach(docData => {
-                deleteDoc(doc(db, "pairs", docData.id));
-            });
-
-            getPairsFromDatabase().then(data => setPairs(data));
-        });
+        const filteredPairs = pairs.filter(p => p.getPairNumber() !== pair.getPairNumber());
+        setPairs([...filteredPairs]);
     }
 
     const getPairsFromDatabase = async () => {
-        const q = query(collection(db, "pairs"), orderBy('pairNumber'))
-        return await getDocs(q)
-            .then((querySnapshot) => {
-                const pairData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
-                const serializedPairData = pairData.map(pair =>
-                    new Pair(
-                        pair.player1Name,
-                        pair.player2Name,
-                        pair.pairNumber,
-                        pair.cumulativePointDiff,
-                        pair.cumulativeWins,
-                        pair.hasPaid,
-                        pair.standing,
-                        pair.id
-                    )
-                )
+        const fetchedPairData = localStorage.getItem('pairs') ? JSON.parse(localStorage.getItem('pairs') as string) : undefined;
+        const serializedPairData: Pair[] = [];
 
-                // serializedPairData.sort((a, b) => { return a.getPairNumber() - b.getPairNumber() });
-                return serializedPairData;
-            });
+        fetchedPairData?.map((pair: any) => {
+            const serializedData = new Pair(
+                pair.player1Name,
+                pair.player2Name,
+                pair.pairNumber,
+                pair.cumulativePointDiff,
+                pair.cumulativeWins,
+                pair.hasPaid,
+                pair.standing,
+                pair.id
+            );
+
+            serializedPairData.push(serializedData);
+        });
+
+        serializedPairData.sort((a, b) => a.getPairNumber() - b.getPairNumber());
+
+        setPairs([...serializedPairData]);
     }
     //#endregion
 
     //#region MATCHUP HELPERS
     const getMatchUpsFromDatabase = async () => {
-        return await getDocs(collection(db, "matchUps"))
-            .then((querySnapshot) => {
-                const matchUpData = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
-                const serializedMatchUpData = matchUpData.map(matchUp =>
-                    new MatchUp(
-                        matchUp.pair1,
-                        matchUp.pair2,
-                        matchUp.pair3,
-                        matchUp.pair4,
-                        matchUp.court,
-                        {
-                            id: matchUp.id,
-                            t1Score: matchUp.t1Score,
-                            t2Score: matchUp.t2Score,
-                            round: matchUp.round
-                        }
-                    )
-                )
+        const fetchedMatchUpData = localStorage.getItem('matchUps') ? JSON.parse(localStorage.getItem('matchUps') as string) : undefined;
+        const serializedMatchUpData: MatchUp[] = [];
 
-                serializedMatchUpData.sort((a, b) => { return a.getRound() - b.getRound() });
-                return serializedMatchUpData;
-            });
+        fetchedMatchUpData?.map((m: any) => {
+            const serializedData = new MatchUp(
+                m.pair1,
+                m.pair2,
+                m.pair3,
+                m.pair4,
+                m.court,
+                {
+                    id: m.id,
+                    t1Score: m.t1Score,
+                    t2Score: m.t2Score,
+                    round: m.round
+                }
+            )
+
+            serializedMatchUpData.push(serializedData);
+        });
+
+        serializedMatchUpData.sort((a, b) => a.getRound() - b.getRound());
+        setMatchUps([...serializedMatchUpData]);
     }
 
     const createBracket = async () => {
-        const serializedMatchUps: MatchUp[] = await getMatchUpsFromDatabase();
-        if (serializedMatchUps.length > 0) {
-            setMatchUps(serializedMatchUps);
-        }
-        else {
-            if (pairs.length < 16) {
-                // Display not enough pairs message
-                setMatchUps([]);
-            }
-            else {
-                switch (pairs.length - 1) {
-                    case 16:
-                        setMatchUps(MatchData.SixteenPairs);
-                        break;
-                    case 17:
-                        setMatchUps(MatchData.SeventeenPairs);
-                        break;
-                    case 18:
-                        setMatchUps(MatchData.EighteenPairs);
-                        break;
-                    case 19:
-                        setMatchUps(MatchData.NineteenPairs);
-                        break;
-                    case 20:
-                        setMatchUps(MatchData.TwentyPairs);
-                        break;
-                    case 21:
-                        setMatchUps(MatchData.TwentyOnePairs);
-                        break;
-                    case 22:
-                        setMatchUps(MatchData.TwentyTwoPairs);
-                        break;
-                    case 23:
-                        setMatchUps(MatchData.TwentyThreePairs);
-                        break;
-                    case 24:
-                        setMatchUps(MatchData.TwentyFourPairs);
-                        break;
-                }
+        debugger;
+        if (matchUps.length === 0) {
+            switch (pairs.length - 1) {
+                case 16:
+                    setMatchUps(MatchData.SixteenPairs);
+                    break;
+                case 17:
+                    setMatchUps(MatchData.SeventeenPairs);
+                    break;
+                case 18:
+                    setMatchUps(MatchData.EighteenPairs);
+                    break;
+                case 19:
+                    setMatchUps(MatchData.NineteenPairs);
+                    break;
+                case 20:
+                    setMatchUps(MatchData.TwentyPairs);
+                    break;
+                case 21:
+                    setMatchUps(MatchData.TwentyOnePairs);
+                    break;
+                case 22:
+                    setMatchUps(MatchData.TwentyTwoPairs);
+                    break;
+                case 23:
+                    setMatchUps(MatchData.TwentyThreePairs);
+                    break;
+                case 24:
+                    setMatchUps([...MatchData.TwentyFourPairs]);
+                    break;
             }
         }
     }
     //#endregion
 
     const addTestData = () => {
+        const tempArray = [];
         for (let i = 1; i < 25; i++) {
-            addNewPair(new Pair(generateUUID(), generateUUID(), i))
+            const tempItem = new Pair(generateUUID(), generateUUID(), i);
+            tempArray.push(tempItem);
         }
+
+        setPairs([...tempArray]);
     }
 
     const generateUUID = () => {
@@ -247,13 +227,17 @@ export function TabSelector() {
                 <Tabs.Panel className={classes.tabContent} value="messages">
                     {
                         matchUps.length > 0 ?
-                            <MatchUpsContent calculateStandings={calculateStandings} matchUps={matchUps} /> :
+                            <MatchUpsContent setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps} /> :
                             null
                     }
                 </Tabs.Panel>
 
                 <Tabs.Panel className={classes.tabContent} value="settings">
-                    Standings content
+                    {
+                        pairs.length > 0 ?
+                            <StandingsContent pairs={pairs} /> :
+                            null
+                    }
                 </Tabs.Panel>
             </Tabs>
         </>

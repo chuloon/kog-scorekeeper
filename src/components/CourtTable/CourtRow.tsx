@@ -1,10 +1,8 @@
 import { MatchUp } from "@/classes/MatchUp";
-import { db } from "@/firebase";
-import { doc, setDoc } from "@firebase/firestore";
 import { Table, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 
-export function CourtRow({ matchUp, calculateStandings }: CourtRowProps) {
+export function CourtRow({ matchUp, calculateStandings, onScoreChange }: CourtRowProps) {
     const [t1Score, setT1Score] = useState(matchUp.getT1Score()?.toString());
     const [t2Score, setT2Score] = useState(matchUp.getT2Score()?.toString());
 
@@ -17,16 +15,9 @@ export function CourtRow({ matchUp, calculateStandings }: CourtRowProps) {
     }, [t2Score]);
 
     useEffect(() => {
-        saveMatchUpsToDatabase();
+        onScoreChange();
         calculateStandings()
-    }, [t1Score, t2Score])
-
-    const saveMatchUpsToDatabase = async () => {
-        const matchUpRef = doc(db, "matchUps", matchUp.getMatchId());
-        await setDoc(matchUpRef, {
-            ...matchUp.getMatchUpData()
-        }, { merge: true })
-    }
+    }, [t1Score, t2Score]);
 
     const getPairText = (pairNumber: number): number | string => {
         if (pairNumber === -1) {
@@ -56,4 +47,5 @@ export function CourtRow({ matchUp, calculateStandings }: CourtRowProps) {
 interface CourtRowProps {
     matchUp: MatchUp;
     calculateStandings: () => void;
+    onScoreChange: () => void;
 }

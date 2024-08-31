@@ -2,7 +2,7 @@ import { Flex, Group, Text, Title } from "@mantine/core";
 import { CourtTable } from "../CourtTable/CourtTable";
 import { MatchUp } from "@/classes/MatchUp";
 
-export function MatchUpsContent({ matchUps, calculateStandings }: MatchUpsContentProps) {
+export function MatchUpsContent({ matchUps, setMatchUps, calculateStandings }: MatchUpsContentProps) {
 
     return (
         <>
@@ -13,22 +13,22 @@ export function MatchUpsContent({ matchUps, calculateStandings }: MatchUpsConten
                             <Flex gap={'xl'} direction={'column'}>
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 1</Title>
-                                    <CourtTable calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 1)} />
+                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 1)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 2</Title>
-                                    <CourtTable calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 2)} />
+                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 2)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 3</Title>
-                                    <CourtTable calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 3)} />
+                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 3)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 4</Title>
-                                    <CourtTable calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 4)} />
+                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 4)} />
                                 </Group>
                             </Flex>
                         </> :
@@ -41,5 +41,6 @@ export function MatchUpsContent({ matchUps, calculateStandings }: MatchUpsConten
 
 interface MatchUpsContentProps {
     matchUps: MatchUp[];
+    setMatchUps: (value: MatchUp[]) => void;
     calculateStandings: () => void;
 }
