@@ -13,22 +13,22 @@ export function MatchUpsContent({ matchUps, setMatchUps, calculateStandings }: M
                             <Flex gap={'xl'} direction={'column'}>
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 1</Title>
-                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 1)} />
+                                    <CourtTable matchUps={matchUps} setMatchUps={setMatchUps} calculateStandings={calculateStandings} courtMatchUps={matchUps.filter(matchUp => matchUp.getCourt() === 1)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 2</Title>
-                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 2)} />
+                                    <CourtTable matchUps={matchUps} setMatchUps={setMatchUps} calculateStandings={calculateStandings} courtMatchUps={matchUps.filter(matchUp => matchUp.getCourt() === 2)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 3</Title>
-                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 3)} />
+                                    <CourtTable matchUps={matchUps} setMatchUps={setMatchUps} calculateStandings={calculateStandings} courtMatchUps={matchUps.filter(matchUp => matchUp.getCourt() === 3)} />
                                 </Group>
 
                                 <Group gap='xs' justify="center">
                                     <Title order={2}>Court 4</Title>
-                                    <CourtTable setMatchUps={setMatchUps} calculateStandings={calculateStandings} matchUps={matchUps.filter(matchUp => matchUp.getCourt() === 4)} />
+                                    <CourtTable matchUps={matchUps} setMatchUps={setMatchUps} calculateStandings={calculateStandings} courtMatchUps={matchUps.filter(matchUp => matchUp.getCourt() === 4)} />
                                 </Group>
                             </Flex>
                         </> :

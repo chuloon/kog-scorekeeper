@@ -14,6 +14,7 @@ export function TabSelector() {
 
     useEffect(() => {
         getPairsFromDatabase();
+        getMatchUpsFromDatabase();
     }, []);
 
     useEffect(() => {
@@ -26,7 +27,10 @@ export function TabSelector() {
     }, [pairs]);
 
     useEffect(() => {
-        localStorage.setItem('matchUps', JSON.stringify(matchUps));
+        const stringifiedMatchUps = matchUps.map(matchUp => {
+            return matchUp.getMatchUpData()
+        })
+        localStorage.setItem('matchUps', JSON.stringify(stringifiedMatchUps));
     }, [matchUps])
 
     const calculateStandings = () => {
@@ -73,19 +77,16 @@ export function TabSelector() {
     //#region PAIR HELPERS
 
     const addNewPair = (newPair: Pair) => {
-        debugger;
         setPairs([...pairs, newPair])
     }
 
     const deletePair = (pair: Pair) => {
-        debugger;
         const filteredPairs = pairs.filter(p => p.getPairNumber() !== pair.getPairNumber());
         setPairs([...filteredPairs]);
     }
 
     const getPairsFromDatabase = async () => {
         const fetchedPairData = localStorage.getItem('pairs') ? JSON.parse(localStorage.getItem('pairs') as string) : undefined;
-        debugger;
         const serializedPairData: Pair[] = [];
 
         fetchedPairData?.map((pair: any) => {

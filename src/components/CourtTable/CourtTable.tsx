@@ -2,12 +2,12 @@ import { MatchUp } from "@/classes/MatchUp";
 import { Table } from "@mantine/core";
 import { CourtRow } from "./CourtRow";
 
-export function CourtTable({ matchUps, setMatchUps, calculateStandings }: CourtTableProps) {
+export function CourtTable({ courtMatchUps, matchUps, setMatchUps, calculateStandings }: CourtTableProps) {
     const courtScoreChange = () => {
-        // setMatchUps([...matchUps]);
+        setMatchUps([...matchUps]);
     }
 
-    const rows = matchUps?.map((matchUp: MatchUp) => {
+    const rows = courtMatchUps?.map((matchUp: MatchUp) => {
         return (
             <CourtRow key={`${matchUp.getMatchId()}`} matchUp={matchUp} onScoreChange={courtScoreChange} calculateStandings={calculateStandings} />
         );
@@ -37,6 +37,7 @@ export function CourtTable({ matchUps, setMatchUps, calculateStandings }: CourtT
 }
 
 interface CourtTableProps {
+    courtMatchUps: MatchUp[];
     matchUps: MatchUp[];
     setMatchUps: (value: MatchUp[]) => void;
     calculateStandings: () => void;
