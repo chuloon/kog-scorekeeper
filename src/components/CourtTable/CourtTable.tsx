@@ -4,7 +4,7 @@ import { CourtRow } from "./CourtRow";
 
 export function CourtTable({ matchUps, setMatchUps, calculateStandings }: CourtTableProps) {
     const courtScoreChange = () => {
-        setMatchUps([...matchUps]);
+        // setMatchUps([...matchUps]);
     }
 
     const rows = matchUps?.map((matchUp: MatchUp) => {

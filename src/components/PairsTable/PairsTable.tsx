@@ -7,7 +7,8 @@ export function PairsTable({ pairs, isStandings = false, deletePair = () => { } 
     }
 
     const rows = pairs.map((pair: Pair) => {
-        if (pair.getPairNumber() !== -1) {
+        // if (pair.getPairNumber() !== -1) {
+        if (true) {
             return (
                 <Table.Tr key={`${pair.getPairKey()}`}>
                     <Table.Td>{pair.getPairNumber()}</Table.Td>

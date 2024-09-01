@@ -13,12 +13,11 @@ export function TabSelector() {
     const [matchUps, setMatchUps] = useState([] as MatchUp[]);
 
     useEffect(() => {
-        addByePair();
         getPairsFromDatabase();
     }, []);
 
     useEffect(() => {
-        if (pairs.length > 0) createBracket();
+        if (pairs.length > 0 && (matchUps.length === 0)) createBracket();
 
         const stringifiedPairs = pairs.map(pair => {
             return pair.getPairData()
@@ -61,36 +60,32 @@ export function TabSelector() {
                 pair2?.addPointDiff(t1PointDiff);
                 pair3?.addPointDiff(t2PointDiff);
                 pair4?.addPointDiff(t2PointDiff);
-
                 const pairArray = [pair1?.getPairNumber(), pair2?.getPairNumber(), pair3?.getPairNumber(), pair4?.getPairNumber()]
-                const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()))
+                const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()));
+                const placedPairs = [...filteredPairs, pair1, pair2, pair3, pair4]
+                placedPairs.sort((a, b) => a.getPairNumber() - b.getPairNumber());
 
-                setPairs([...filteredPairs, pair1, pair2, pair3, pair4]);
+                setPairs([...placedPairs]);
             }
         })
     }
 
     //#region PAIR HELPERS
-    const addByePair = () => {
-        const byePair = new Pair("BYE1", "BYE2", -1);
-        const hasByePair = pairs.find(pair => pair.getPairNumber() === byePair.getPairNumber()) !== undefined;
-
-        if (!hasByePair) {
-            setPairs([...pairs, byePair]);
-        }
-    }
 
     const addNewPair = (newPair: Pair) => {
+        debugger;
         setPairs([...pairs, newPair])
     }
 
     const deletePair = (pair: Pair) => {
+        debugger;
         const filteredPairs = pairs.filter(p => p.getPairNumber() !== pair.getPairNumber());
         setPairs([...filteredPairs]);
     }
 
     const getPairsFromDatabase = async () => {
         const fetchedPairData = localStorage.getItem('pairs') ? JSON.parse(localStorage.getItem('pairs') as string) : undefined;
+        debugger;
         const serializedPairData: Pair[] = [];
 
         fetchedPairData?.map((pair: any) => {
@@ -107,10 +102,9 @@ export function TabSelector() {
 
             serializedPairData.push(serializedData);
         });
-
         serializedPairData.sort((a, b) => a.getPairNumber() - b.getPairNumber());
-
-        setPairs([...serializedPairData]);
+        if (serializedPairData.length === 0) serializedPairData.push(new Pair('BYE', 'BYE', -1));
+        setPairs(serializedPairData);
     }
     //#endregion
 
@@ -142,37 +136,34 @@ export function TabSelector() {
     }
 
     const createBracket = async () => {
-        debugger;
-        if (matchUps.length === 0) {
-            switch (pairs.length - 1) {
-                case 16:
-                    setMatchUps(MatchData.SixteenPairs);
-                    break;
-                case 17:
-                    setMatchUps(MatchData.SeventeenPairs);
-                    break;
-                case 18:
-                    setMatchUps(MatchData.EighteenPairs);
-                    break;
-                case 19:
-                    setMatchUps(MatchData.NineteenPairs);
-                    break;
-                case 20:
-                    setMatchUps(MatchData.TwentyPairs);
-                    break;
-                case 21:
-                    setMatchUps(MatchData.TwentyOnePairs);
-                    break;
-                case 22:
-                    setMatchUps(MatchData.TwentyTwoPairs);
-                    break;
-                case 23:
-                    setMatchUps(MatchData.TwentyThreePairs);
-                    break;
-                case 24:
-                    setMatchUps([...MatchData.TwentyFourPairs]);
-                    break;
-            }
+        switch (pairs.length - 1) {
+            case 16:
+                setMatchUps([...MatchData.SixteenPairs]);
+                break;
+            case 17:
+                setMatchUps([...MatchData.SeventeenPairs]);
+                break;
+            case 18:
+                setMatchUps([...MatchData.EighteenPairs]);
+                break;
+            case 19:
+                setMatchUps([...MatchData.NineteenPairs]);
+                break;
+            case 20:
+                setMatchUps([...MatchData.TwentyPairs]);
+                break;
+            case 21:
+                setMatchUps([...MatchData.TwentyOnePairs]);
+                break;
+            case 22:
+                setMatchUps([...MatchData.TwentyTwoPairs]);
+                break;
+            case 23:
+                setMatchUps([...MatchData.TwentyThreePairs]);
+                break;
+            case 24:
+                setMatchUps([...MatchData.TwentyFourPairs]);
+                break;
         }
     }
     //#endregion
@@ -183,8 +174,7 @@ export function TabSelector() {
             const tempItem = new Pair(generateUUID(), generateUUID(), i);
             tempArray.push(tempItem);
         }
-
-        setPairs([...tempArray]);
+        setPairs([...pairs, ...tempArray]);
     }
 
     const generateUUID = () => {
