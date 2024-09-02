@@ -63,6 +63,10 @@ export class Pair {
     public getPairNumber(): number {
         return this._pairNumber;
     }
+
+    public setPairNumber(n: number): void {
+        this._pairNumber = n;
+    }
     //#endregion
 
     //#region PLAYER_NAMES

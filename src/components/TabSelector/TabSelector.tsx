@@ -202,7 +202,11 @@ export function TabSelector() {
     });
 
     const beginRound2 = () => {
+        const rankedPairs = pairs.filter(pair => pair.getPairNumber() !== -1).sort((a, b) => b.getWins() - a.getWins() || b.getPointDiff() - a.getPointDiff() || a.getPairNumber() - b.getPairNumber());
+        rankedPairs.map((pair: Pair, i: number) => pair.setPairNumber(i + 1));
 
+        setPairs([new Pair('BYE', 'BYE', -1), ...rankedPairs]);
+        setMatchUps([]);
     }
 
     const generateUUID = () => {
