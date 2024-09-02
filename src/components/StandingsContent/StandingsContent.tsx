@@ -6,14 +6,17 @@ export function StandingsContent({ pairs }: StandingsContentProps) {
     const [sortedPairs, setSortedPairs] = useState(pairs);
 
     useEffect(() => {
-        const sp = sortedPairs.sort((a, b) => b.getWins() - a.getWins() || b.getPointDiff() - a.getPointDiff());
-        setSortedPairs(sp);
+        sortPairs()
     }, [])
 
     useEffect(() => {
-        const sp = sortedPairs.sort((a, b) => b.getWins() - a.getWins() || b.getPointDiff() - a.getPointDiff());
-        setSortedPairs(sp);
+        sortPairs()
     }, [pairs])
+
+    const sortPairs = () => {
+        const sp = sortedPairs.sort((a, b) => b.getWins() - a.getWins() || b.getPointDiff() - a.getPointDiff() || a.getPairNumber() - b.getPairNumber());
+        setSortedPairs(sp);
+    }
 
     return (
         <>
