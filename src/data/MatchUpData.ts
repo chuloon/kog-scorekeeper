@@ -167,7 +167,43 @@ export const EighteenPairs: MatchUp[] = [
     //#endregion
 ];
 
-export const NineteenPairs: MatchUp[] = [];
+export const NineteenPairs: MatchUp[] = [
+    //#region COURT 1
+    new MatchUp(1, 2, 3, 4, 1, { round: 1 }),
+    new MatchUp(17, 18, 19, 1, 1, { round: 2 }),
+    new MatchUp(8, 12, 16, 17, 1, { round: 3 }),
+    new MatchUp(4, 14, 8, 13, 1, { round: 4 }),
+    new MatchUp(7, 10, 13, 17, 1, { round: 5 }),
+    new MatchUp(3, 8, 11, 17, 1, { round: 6 }),
+    //#endregion
+
+    //#region COURT 2
+    new MatchUp(5, 6, 7, 8, 2, { round: 1 }),
+    new MatchUp(2, 5, 9, 13, 2, { round: 2 }),
+    new MatchUp(2, 18, 6, 19, 2, { round: 3 }),
+    new MatchUp(11, 17, 12, 18, 2, { round: 4 }),
+    new MatchUp(8, 16, 9, 18, 2, { round: 5 }),
+    new MatchUp(6, 9, 7, 19, 2, { round: 6 }),
+    //#endregion
+
+    //#region COURT 3
+    new MatchUp(9, 10, 11, 12, 3, { round: 1 }),
+    new MatchUp(3, 6, 10, 14, 3, { round: 2 }),
+    new MatchUp(1, 5, 10, 15, 3, { round: 3 }),
+    new MatchUp(3, 5, 16, 19, 3, { round: 4 }),
+    new MatchUp(1, 11, 14, 19, 3, { round: 5 }),
+    new MatchUp(10, 16, 12, 18, 3, { round: 6 }),
+    //#endregion
+
+    //#region COURT 4
+    new MatchUp(13, 14, 15, 16, 4, { round: 1 }),
+    new MatchUp(4, 7, 11, 15, 4, { round: 2 }),
+    new MatchUp(3, 9, 7, 4, 4, { round: 3 }),
+    new MatchUp(1, 6, 15, 2, 4, { round: 4 }),
+    new MatchUp(2, 4, 12, 5, 4, { round: 5 }),
+    new MatchUp(13, 15, 14, -1, 4, { round: 6 }),
+    //#endregion
+];
 
 export const TwentyPairs: MatchUp[] = [
     //#region COURT 1
@@ -249,7 +285,47 @@ export const TwentyOnePairs: MatchUp[] = [
     //#endregion
 ];
 
-export const TwentyTwoPairs: MatchUp[] = [];
+export const TwentyTwoPairs: MatchUp[] = [
+    //#region COURT 1
+    new MatchUp(1, 2, 3, 4, 1, { round: 1 }),
+    new MatchUp(17, 18, 19, 20, 1, { round: 2 }),
+    new MatchUp(8, 9, 15, 10, 1, { round: 3 }),
+    new MatchUp(1, 7, 10, 14, 1, { round: 4 }),
+    new MatchUp(6, 21, 19, 22, 1, { round: 5 }),
+    new MatchUp(6, 17, 15, 21, 1, { round: 6 }),
+    new MatchUp(3, 6, 9, 17, 1, { round: 7 }),
+    //#endregion
+
+    //#region COURT 2
+    new MatchUp(5, 6, 7, 8, 2, { round: 1 }),
+    new MatchUp(21, 22, 8, 1, 2, { round: 2 }),
+    new MatchUp(11, 14, 16, 17, 2, { round: 3 }),
+    new MatchUp(3, 11, 15, 16, 2, { round: 4 }),
+    new MatchUp(1, 9, 5, 20, 2, { round: 5 }),
+    new MatchUp(1, 18, 11, 19, 2, { round: 6 }),
+    new MatchUp(21, 7, 12, 13, 2, { round: 7 }),
+    //#endregion
+
+    //#region COURT 3
+    new MatchUp(9, 10, 11, 12, 3, { round: 1 }),
+    new MatchUp(2, 5, 3, 7, 3, { round: 2 }),
+    new MatchUp(12, 18, 22, 3, 3, { round: 3 }),
+    new MatchUp(12, 2, 18, 8, 3, { round: 4 }),
+    new MatchUp(4, 7, 10, 16, 3, { round: 5 }),
+    new MatchUp(4, 20, 14, 22, 3, { round: 6 }),
+    new MatchUp(15, 22, 18, 20, 3, { round: 7 }),
+    //#endregion
+
+    //#region COURT 4
+    new MatchUp(13, 14, 15, 16, 4, { round: 1 }),
+    new MatchUp(4, 6, 9, 13, 4, { round: 2 }),
+    new MatchUp(19, 20, 21, 2, 4, { round: 3 }),
+    new MatchUp(4, 5, 13, 17, 4, { round: 4 }),
+    new MatchUp(14, 12, 11, 13, 4, { round: 5 }),
+    new MatchUp(2, 5, 10, 8, 4, { round: 6 }),
+    new MatchUp(16, -1, 19, -1, 4, { round: 7 }),
+    //#endregion
+];
 
 export const TwentyThreePairs: MatchUp[] = [
     //#region COURT 1
