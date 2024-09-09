@@ -22,6 +22,7 @@ export function TabSelector() {
     }, []);
 
     useEffect(() => {
+        debugger;
         if (pairs.length > 0 && (matchUps.length === 0)) createBracket();
 
         const stringifiedPairs = pairs.map(pair => {
@@ -51,8 +52,6 @@ export function TabSelector() {
             const pair4: Pair = pairs.find(pair => matchUp.getPair4() === pair.getPairNumber()) as Pair;
 
             if (pair1 && pair2 && pair3 && pair4) {
-
-
                 const t1PointDiff = (matchUp.getT1Score() as number) - (matchUp.getT2Score() as number);
                 const t2PointDiff = (matchUp.getT2Score() as number) - (matchUp.getT1Score() as number);
 
@@ -73,7 +72,6 @@ export function TabSelector() {
                 const filteredPairs = pairs.filter(pair => !pairArray.includes(pair.getPairNumber()));
                 const placedPairs = [...filteredPairs, pair1, pair2, pair3, pair4]
                 placedPairs.sort((a, b) => a.getPairNumber() - b.getPairNumber());
-
                 setPairs([...placedPairs]);
             }
         })
@@ -104,13 +102,16 @@ export function TabSelector() {
                 pair.cumulativeWins,
                 pair.hasPaid,
                 pair.standing,
-                pair.id
+                pair.id,
+                pair.totalWins,
+                pair.totalPointDiff
             );
 
             serializedPairData.push(serializedData);
         });
         serializedPairData.sort((a, b) => a.getPairNumber() - b.getPairNumber());
         if (serializedPairData.length === 0) serializedPairData.push(new Pair('BYE', 'BYE', -1));
+        debugger;
         setPairs(serializedPairData);
     }
     //#endregion
@@ -203,7 +204,11 @@ export function TabSelector() {
 
     const beginRound2 = () => {
         const rankedPairs = pairs.filter(pair => pair.getPairNumber() !== -1).sort((a, b) => b.getWins() - a.getWins() || b.getPointDiff() - a.getPointDiff() || a.getPairNumber() - b.getPairNumber());
-        rankedPairs.map((pair: Pair, i: number) => pair.setPairNumber(i + 1));
+        rankedPairs.map((pair: Pair, i: number) => {
+            pair.setPairNumber(i + 1);
+            pair.setTotalPointDiff(pair.getPointDiff());
+            pair.setTotalWins(pair.getWins());
+        });
 
         setPairs([new Pair('BYE', 'BYE', -1), ...rankedPairs]);
         setMatchUps([]);

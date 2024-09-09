@@ -17,8 +17,8 @@ export function PairsTable({ pairs, isStandings = false, deletePair = () => { } 
                 <Table.Td>{pair.getPairNumber()}</Table.Td>
                 <Table.Td>{pair.getPlayer1Name()}</Table.Td>
                 <Table.Td>{pair.getPlayer2Name()}</Table.Td>
-                <Table.Td>{pair.getWins()}</Table.Td>
-                <Table.Td>{pair.getPointDiff()}</Table.Td>
+                <Table.Td>{pair.getWins() + pair.getTotalWins()}</Table.Td>
+                <Table.Td>{pair.getPointDiff() + pair.getTotalPointDiff()}</Table.Td>
                 {
                     !isStandings ?
                         <>

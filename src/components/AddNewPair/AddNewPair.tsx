@@ -9,7 +9,7 @@ export function AddNewPair({ handleAddNewPair, currentNumberOfPairs }: AddNewPai
     })
 
     const addPairClick = (values: any) => {
-        const newPair: Pair = new Pair(values?.player1Name, values?.player2Name, currentNumberOfPairs + 1)
+        const newPair: Pair = new Pair(values?.player1Name, values?.player2Name, currentNumberOfPairs)
         handleAddNewPair(newPair);
         createFormActions('new-pair-form').reset();
     }
