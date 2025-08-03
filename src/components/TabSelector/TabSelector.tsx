@@ -9,6 +9,7 @@ import * as MatchData from '@/data/MatchUpData';
 import { StandingsContent } from '../StandingsContent/StandingsContent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { modals } from '@mantine/modals';
+import { savePairs } from '@/services/savePairs';
 
 export function TabSelector() {
     const navigate = useNavigate();
@@ -22,13 +23,9 @@ export function TabSelector() {
     }, []);
 
     useEffect(() => {
-        debugger;
         if (pairs.length > 0 && (matchUps.length === 0)) createBracket();
 
-        const stringifiedPairs = pairs.map(pair => {
-            return pair.getPairData()
-        })
-        localStorage.setItem("pairs", JSON.stringify(stringifiedPairs));
+        savePairs(pairs);
     }, [pairs]);
 
     useEffect(() => {
@@ -111,7 +108,6 @@ export function TabSelector() {
         });
         serializedPairData.sort((a, b) => a.getPairNumber() - b.getPairNumber());
         if (serializedPairData.length === 0) serializedPairData.push(new Pair('BYE', 'BYE', -1));
-        debugger;
         setPairs(serializedPairData);
     }
     //#endregion

@@ -51,6 +51,46 @@ export class Pair {
 
         return pairData;
     }
+
+    public savePairData(): void {
+        const fetchedPairData = localStorage.getItem('pairs') ? JSON.parse(localStorage.getItem('pairs') as string) : undefined;
+        const serializedPairData: Pair[] = [];
+
+        fetchedPairData?.map((pair: any) => {
+            const serializedData = new Pair(
+                pair.player1Name,
+                pair.player2Name,
+                pair.pairNumber,
+                pair.cumulativePointDiff,
+                pair.cumulativeWins,
+                pair.hasPaid,
+                pair.standing,
+                pair.id,
+                pair.totalWins,
+                pair.totalPointDiff
+            );
+
+            serializedPairData.push(serializedData);
+        });
+        if (serializedPairData.length === 0) serializedPairData.push(new Pair('BYE', 'BYE', -1));
+
+        const filteredPairs = serializedPairData.filter(pair => pair.getPairNumber() !== this._pairNumber)
+        console.log(filteredPairs);
+        const modifiedPairData = {
+            player1Name: this._player1Name,
+            player2Name: this._player2Name,
+            pairNumber: this._pairNumber,
+            cumulativePointDiff: this._cumulativePointDiff,
+            cumulativeWins: this._cumulativeWins,
+            hasPaid: this._hasPaid,
+            standing: this._standing,
+            id: this._id,
+            totalPointDiff: this._totalPointDiff,
+            totalWins: this._totalWins
+        }
+
+        localStorage.setItem('pairs', JSON.stringify([...filteredPairs, modifiedPairData]));
+    }
     //#endregion
 
     //#region MONEY
@@ -60,6 +100,7 @@ export class Pair {
 
     public setHasPaid(hasPaid: boolean): void {
         this._hasPaid = hasPaid;
+        this.savePairData();
     }
     //#endregion
 
